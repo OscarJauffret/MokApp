@@ -13,10 +13,10 @@ class SocketClient {
     let connection: NWConnection
     typealias DataReceivedCallback = (String) -> Void
     var dataReceivedCallback: DataReceivedCallback?
-    private var accumulatedData: String = ""
+    //private var accumulatedData: String = ""
 
     init() {
-        connection = NWConnection(host: "192.168.1.37", port: 8081, using: .tcp) // Port 8081 utilisé
+        connection = NWConnection(host: "192.168.1.58", port: 8081, using: .tcp) // Port 8081 utilisé
     }
 
     func start() {
@@ -72,8 +72,9 @@ class SocketClient {
                 self.dataReceivedCallback?(message)
 
                 // Vérifier si le message contient "END_OF_PARAMETERS"
-                if message.contains("END_OF_PARAMETERS") {
-                    print("Received END_OF_PARAMETERS, stopping reception")
+                if message.contains("END_OF_MESSAGE") {
+                    print("Received END_OF_MESSAGE, stopping reception")
+                    print("Message reçu: \(message)")
                     return
                 }
 

@@ -23,6 +23,7 @@
 		55BA76DA2C24B1240055FE9C /* MokaaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55BA76D92C24B1240055FE9C /* MokaaTests.swift */; };
 		55BA76E42C24B1240055FE9C /* MokaaUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55BA76E32C24B1240055FE9C /* MokaaUITests.swift */; };
 		55BA76E62C24B1240055FE9C /* MokaaUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55BA76E52C24B1240055FE9C /* MokaaUITestsLaunchTests.swift */; };
+		55D7FCDA2C258E1F00C4F5D4 /* AudioRecording.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55D7FCD92C258E1F00C4F5D4 /* AudioRecording.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -79,6 +80,7 @@
 		55BA76DF2C24B1240055FE9C /* MokaaUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MokaaUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		55BA76E32C24B1240055FE9C /* MokaaUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MokaaUITests.swift; sourceTree = "<group>"; };
 		55BA76E52C24B1240055FE9C /* MokaaUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MokaaUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		55D7FCD92C258E1F00C4F5D4 /* AudioRecording.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecording.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -160,6 +162,7 @@
 				55BA76BE2C2446570055FE9C /* Client.swift */,
 				55038A4E2C21ED7500DB3886 /* MokaApp.swift */,
 				55038A502C21ED7500DB3886 /* ContentView.swift */,
+				55D7FCD92C258E1F00C4F5D4 /* AudioRecording.swift */,
 				55038A522C21ED7700DB3886 /* Assets.xcassets */,
 				55038A542C21ED7700DB3886 /* Preview Content */,
 			);
@@ -447,6 +450,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				55D7FCDA2C258E1F00C4F5D4 /* AudioRecording.swift in Sources */,
 				55038A512C21ED7500DB3886 /* ContentView.swift in Sources */,
 				55038A4F2C21ED7500DB3886 /* MokaApp.swift in Sources */,
 				55BA76BF2C24465D0055FE9C /* Client.swift in Sources */,
