@@ -75,7 +75,7 @@ struct AudioRecording: View {
         NavigationStack {
             VStack {
                 Form {
-                    Section("Enregistrer un nouveau message") {
+                    Section(content: {
                         Picker("Sélectionnez votre voix", selection: $selectedVoice) {
                             ForEach(Voices.allCases, id: \.self) { voice in
                                 Text(voice.rawValue)
@@ -109,12 +109,12 @@ struct AudioRecording: View {
                                 Spacer()
                             }
                         }
-                    }
+                    }, header:{
+                        Text("Enregistrer un nouveau message")
+                    }, footer: {
+                        Text("Assurez-vous de sélectionner votre voix avant d'enregistrer le message \nLe message envoyé à Moka lorsqu'un aboiement est détecté est un message sélectionné aléatoirement parmi les messages d'une personne sélectionnée aléatoirement")
+                    })
                 }
-                Text("Assurez-vous de sélectionner votre voix avant d'enregistrer le message \n\nLe message envoyé à Moka lorsqu'un aboiement est détecté est un message sélectionné aléatoirement parmi les messages d'une personne sélectionnée aléatoirement")
-                    .font(.caption)
-                    .padding()
-                    .foregroundStyle(Color.gray)
             }
         }
         .alert(isPresented: self.$alertSend) {
@@ -124,3 +124,6 @@ struct AudioRecording: View {
     }
 }
 
+#Preview {
+    AudioRecording(client: nil, voice: .Papa)
+}

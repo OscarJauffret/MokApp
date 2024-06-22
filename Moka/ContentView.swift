@@ -19,6 +19,7 @@ struct ContentView: View {
     @State private var selectedVoice: Voices = .Papa
     @State private var alertRecord = false
     @State private var alertVoiceInfo = false
+    @State private var lastBarks: [(String, String, String)] = []
     @Environment(\.scenePhase) private var scenePhase
     
     
@@ -59,6 +60,35 @@ struct ContentView: View {
         self.isAppOnManual = true
     }
     
+    fileprivate func processReceivedDataLastBarks(data: String?) {
+        guard let data = data else {
+            print("Received data is nil")
+            return
+        }
+        let cleanData = String(data.split(separator: "END_OF_MESSAGE")[0])
+        let parsedData = self.parseDataString(cleanData)
+        self.lastBarks = parsedData
+    }
+    
+    fileprivate func parseDataString(_ data: String) -> [(String, String, String)] {
+        var result: [(String, String, String)] = []
+        let lastBarks = data.split(separator: "?")
+        
+        for bark in lastBarks {
+            let components = bark.split(separator: ";")
+            guard components.count == 3 else {
+                print("paire mal formée")
+                continue // Ignorer les paires mal formées
+            }
+            let date = components[0].trimmingCharacters(in: .whitespacesAndNewlines)
+            let mode = components[1].trimmingCharacters(in: .whitespacesAndNewlines)
+            let voice = components[2].trimmingCharacters(in: .whitespacesAndNewlines)
+            
+            result.append((date, mode, voice))
+        }
+        return result
+    }
+    
     var body: some View {
         NavigationStack {
             VStack {
@@ -95,7 +125,7 @@ struct ContentView: View {
                         }
                         HStack {
                             Button(action: {
-                                self.client?.sendData(message: "2")
+                                self.client?.sendData(message: "2 \(selectedVoice)")
                             }) {
                                 Text("Réprimander manuellement")
                             }
@@ -107,6 +137,27 @@ struct ContentView: View {
                             Text("Enregistrer un nouveau message")
                         }
                         .disabled(!isAppOn)
+                    }
+                    Section("Derniers aboiements") {
+                        if lastBarks.isEmpty {
+                            Text("Aucun aboiement récent")
+                                .foregroundStyle(Color.gray)
+                        } else {
+                            ForEach(lastBarks, id: \.0) { bark in
+                                HStack {
+                                    VStack(alignment: .leading) {
+                                        Text("\(bark.0)")
+                                        Text("\(bark.1)")
+                                            .font(.caption)
+                                            .foregroundStyle(bark.1 == "Non traité" ? Color.pink: Color.gray)
+                                    }
+                                    Spacer()
+                                    if bark.2 != "None" {
+                                        Text("\(bark.2)")
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -138,15 +189,24 @@ struct ContentView: View {
         }
     }
     
-    func setupClientAndSession() async {
+    fileprivate func connectClient() {
         if self.client == nil {
             self.client = SocketClient()
             self.client?.start()
         }
+    }
+    
+    func setupClientAndSession() async {
+        connectClient()
         self.client?.dataReceivedCallback = { data in
             self.processReceivedAppState(data: data)
         }
         self.client?.sendData(message: "REQUEST_APP_STATE")
+        self.client?.receiveData()
+        self.client?.dataReceivedCallback = { data in
+            self.processReceivedDataLastBarks(data: data)
+        }
+        self.client?.sendData(message: "REQUEST_LAST_BARKS")
         self.client?.receiveData()
         /*do {
             self.session = AVAudioSession.sharedInstance()

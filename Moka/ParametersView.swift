@@ -9,11 +9,12 @@ import SwiftUI
 
 struct ParametersView: View {
     @State private var client: SocketClient?
-    @State private var parameters: [Double] = [10.0, 0.7, 120]
+    @State private var parameters: [Double] = [10.0, 0.7, 120, 2]
     @State private var dBThresholdsBounds: [Double] = [0, 20]
     @State private var resemblanceThresholdsBounds: [Double] = [0, 1]
     @State private var showConfirmationAlert = false
     @State private var cooldownBounds: [Double] = [60, 300]
+    @State private var delayBounds: [Double] = [0, 5]
     @State private var receivedData: String? = nil
     @Environment(\.colorScheme) var colorScheme
     
@@ -32,40 +33,36 @@ struct ParametersView: View {
         
         // Update the thresholds and cooldown
         for item in parsedData {
-            switch item.1 {
+            switch item.0 {
             case "noise_threshold":
-                self.parameters[0] = item.2 as! Double
+                self.parameters[0] = item.1
             case "resemblance_threshold":
-                self.parameters[1] = item.2 as! Double
+                self.parameters[1] = item.1
             case "cooldown":
-                self.parameters[2] = item.2 as! Double
+                self.parameters[2] = item.1
+            case "delay":
+                self.parameters[3] = item.1
             default:
                 break
             }
         }
-        print("New parameters are: \(parameters[0]), \(parameters[1]), \(parameters[2])")
+        print("New parameters are: \(parameters)")
     }
     
-    func parseDataString(_ data: String) -> [(Int, String, Any)] {
-        var result: [(Int, String, Any)] = []
-        let cleanedData = data.replacingOccurrences(of: "[", with: "")
-                                .replacingOccurrences(of: "]", with: "")
-                                .replacingOccurrences(of: "(", with: "")
-                                .replacingOccurrences(of: ")", with: "")
+    func parseDataString(_ data: String) -> [(String, Double)] {
+        var result: [(String, Double)] = []
+        let parameters = data.split(separator: ",")
         
-        let items = cleanedData.split(separator: ",")
-        var currentItem: [String] = []
-        
-        for item in items {
-            let trimmedItem = item.trimmingCharacters(in: .whitespacesAndNewlines)
-            currentItem.append(trimmedItem)
-            if currentItem.count == 3 {
-                if let id = Int(currentItem[0]),
-                   let value = Double(currentItem[2]) {
-                    let name = currentItem[1].replacingOccurrences(of: "'", with: "")
-                    result.append((id, name, value))
-                }
-                currentItem.removeAll()
+        for param in parameters {
+            let components = param.split(separator: ":")
+            guard components.count == 2 else {
+                continue // Ignorer les paires mal formées
+            }
+            let name = components[0].trimmingCharacters(in: .whitespacesAndNewlines)
+            let valueStr = components[1].trimmingCharacters(in: .whitespacesAndNewlines)
+            
+            if let value = Double(valueStr) {
+                result.append((String(name), value))
             }
         }
         return result
@@ -76,7 +73,7 @@ struct ParametersView: View {
            title: Text("Êtes-vous sûr ?"),
            message: Text("Voulez-vous réinitialiser les paramètres"),
            primaryButton: .default(Text("Oui")) {
-               self.parameters = [10.0, 0.7, 120.0]
+               self.parameters = [10.0, 0.7, 120.0, 2]
            },
            secondaryButton: .default(Text("Annuler"))
        )
@@ -107,6 +104,14 @@ struct ParametersView: View {
                             Text("\(Int(self.cooldownBounds[1]) / 60) min.")
                         }
                     }
+                    Section("Délai entre l'aboiement et la réponse") {
+                        HStack {
+                            Text("\(Int(self.delayBounds[0]))s")
+                            Slider(value: $parameters[3], in: self.delayBounds[0]...self.delayBounds[1])
+                            Text("\(Int(self.delayBounds[1]))s")
+                        }
+                    }
+                    
                     Button(action: {
                         self.showConfirmationAlert = true
                     }) {
@@ -122,13 +127,11 @@ struct ParametersView: View {
             .navigationTitle("Paramètres")
         }
         .onAppear {
-            /*
             self.client?.dataReceivedCallback = { data in
                 self.processReceivedData(data: data)
             }
             self.client?.sendData(message: "REQUEST_PARAMETERS")
             self.client?.receiveData()
-             */
         }
         .onDisappear {
             self.client?.sendData(message: "3 \(parameters)")
